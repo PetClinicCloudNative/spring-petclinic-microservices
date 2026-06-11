@@ -7,13 +7,12 @@ services:
         limits:
           memory: 512M
     healthcheck:
-      test: ["CMD", "curl", "-I", "http://config-server:8888"]
+      test: [ "CMD", "curl", "-I", "http://config-server:8888" ]
       interval: 5s
       timeout: 5s
       retries: 10
     ports:
-     - 8888:8888
-
+      - 8888:8888
   discovery-server:
     image: springcommunity/spring-petclinic-discovery-server
     container_name: discovery-server
@@ -22,7 +21,7 @@ services:
         limits:
           memory: 512M
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://discovery-server:8761"]
+      test: [ "CMD", "curl", "-f", "http://discovery-server:8761" ]
       interval: 5s
       timeout: 3s
       retries: 10
@@ -30,11 +29,13 @@ services:
       config-server:
         condition: service_healthy
     ports:
-     - 8761:8761
-
+      - 8761:8761
   customers-service:
     image: springcommunity/spring-petclinic-customers-service
     container_name: customers-service
+    environment:
+      - MANAGEMENT_ZIPKIN_TRACING_ENDPOINT=http://tracing-server:9411/api/v2/spans
+      - MANAGEMENT_TRACING_SAMPLING_PROBABILITY=1.0
     deploy:
       resources:
         limits:
@@ -45,11 +46,13 @@ services:
       discovery-server:
         condition: service_healthy
     ports:
-    - 8081:8081
-
+      - 8081:8081
   visits-service:
     image: springcommunity/spring-petclinic-visits-service
     container_name: visits-service
+    environment:
+      - MANAGEMENT_ZIPKIN_TRACING_ENDPOINT=http://tracing-server:9411/api/v2/spans
+      - MANAGEMENT_TRACING_SAMPLING_PROBABILITY=1.0
     deploy:
       resources:
         limits:
@@ -60,11 +63,13 @@ services:
       discovery-server:
         condition: service_healthy
     ports:
-     - 8082:8082
-
+      - 8082:8082
   vets-service:
     image: springcommunity/spring-petclinic-vets-service
     container_name: vets-service
+    environment:
+      - MANAGEMENT_ZIPKIN_TRACING_ENDPOINT=http://tracing-server:9411/api/v2/spans
+      - MANAGEMENT_TRACING_SAMPLING_PROBABILITY=1.0
     deploy:
       resources:
         limits:
@@ -75,9 +80,7 @@ services:
       discovery-server:
         condition: service_healthy
     ports:
-     - 8083:8083
-
-
+      - 8083:8083
   genai-service:
     image: springcommunity/spring-petclinic-genai-service
     container_name: genai-service
@@ -95,12 +98,13 @@ services:
       discovery-server:
         condition: service_healthy
     ports:
-     - 8084:8084
-
-
+      - 8084:8084
   api-gateway:
     image: springcommunity/spring-petclinic-api-gateway
     container_name: api-gateway
+    environment:
+      - MANAGEMENT_ZIPKIN_TRACING_ENDPOINT=http://tracing-server:9411/api/v2/spans
+      - MANAGEMENT_TRACING_SAMPLING_PROBABILITY=1.0
     deploy:
       resources:
         limits:
@@ -111,8 +115,7 @@ services:
       discovery-server:
         condition: service_healthy
     ports:
-     - 8080:8080
-
+      - 8080:8080
   tracing-server:
     image: openzipkin/zipkin
     container_name: tracing-server
@@ -121,11 +124,13 @@ services:
         limits:
           memory: 512M
     ports:
-     - 9411:9411
-
+      - 9411:9411
   admin-server:
     image: springcommunity/spring-petclinic-admin-server
     container_name: admin-server
+    environment:
+      - MANAGEMENT_ZIPKIN_TRACING_ENDPOINT=http://tracing-server:9411/api/v2/spans
+      - MANAGEMENT_TRACING_SAMPLING_PROBABILITY=1.0
     deploy:
       resources:
         limits:
@@ -136,10 +141,7 @@ services:
       discovery-server:
         condition: service_healthy
     ports:
-     - 9090:9090
-
-  ## Grafana / Prometheus
-
+      - 9090:9090
   grafana-server:
     build: ./docker/grafana
     container_name: grafana-server
@@ -148,8 +150,7 @@ services:
         limits:
           memory: 256M
     ports:
-    - 3030:3000
-
+      - 3030:3000
   prometheus-server:
     build: ./docker/prometheus
     container_name: prometheus-server
@@ -158,4 +159,4 @@ services:
         limits:
           memory: 256M
     ports:
-    - 9091:9090
+      - 9091:9090
